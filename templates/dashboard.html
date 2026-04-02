@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LivenessLens — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:      #fdf6f0;
+      --surface: #fef9f5;
+      --card:    #ffffff;
+      --peach:   #f4845f;
+      --peach-l: #f9a882;
+      --peach-d: #e05c35;
+      --sand:    #f0d9c8;
+      --sand-l:  #fdf0e6;
+      --text:    #1a1208;
+      --text-2:  #6b5a4e;
+      --text-3:  #b09888;
+      --border:  #eeddd3;
+      --green:   #4caf7d;
+      --green-l: #e6f7ef;
+      --red:     #e05c5c;
+      --red-l:   #fff0f0;
+      --amber:   #f4a535;
+      --amber-l: #fff8ee;
+      --shadow:  rgba(244,132,95,0.14);
+      --shadow-s:rgba(26,18,8,0.06);
+      --F: 'Sora', sans-serif;
+      --B: 'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--B); font-size: 14px;
+      min-height: 100vh; overflow-x: hidden;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      height: 66px;
+      background: rgba(253,246,240,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 32px; gap: 16px;
+      box-shadow: 0 1px 20px var(--shadow-s);
+    }
+    .topbar-brand {
+      display: flex; align-items: center; gap: 11px; text-decoration: none;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--peach-l), var(--peach));
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    .brand-icon svg { width: 18px; height: 18px; }
+    .brand-name {
+      font-family: var(--F); font-size: 16px; font-weight: 800;
+      color: var(--text); letter-spacing: -0.3px;
+    }
+    .topbar-sep { flex: 1; }
+
+    .nav-links { display: flex; gap: 4px; }
+    .nav-link {
+      padding: 7px 14px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; color: var(--text-2);
+      text-decoration: none; transition: all 0.2s;
+    }
+    .nav-link:hover { background: var(--sand-l); color: var(--peach); }
+    .nav-link.active { background: rgba(244,132,95,0.1); color: var(--peach); font-weight: 600; }
+
+    .online-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 20px;
+      background: var(--green-l); border: 1px solid rgba(76,175,125,0.25);
+      font-size: 11px; font-weight: 600; color: var(--green);
+    }
+    .online-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); box-shadow: 0 0 6px var(--green);
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--peach-l), var(--peach-d));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--F); font-size: 13px; font-weight: 700; color: #fff;
+      box-shadow: 0 3px 10px var(--shadow);
+      cursor: pointer;
+    }
+
+    .btn-logout {
+      padding: 8px 16px; border-radius: 8px;
+      background: transparent; color: var(--red);
+      border: 1.5px solid rgba(224,92,92,0.25);
+      font-family: var(--F); font-size: 11px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-logout:hover {
+      background: var(--red-l);
+      border-color: var(--red);
+    }
+
+    /* ── WRAPPER ── */
+    .wrapper {
+      max-width: 1100px; margin: 0 auto;
+      padding: 36px 32px 80px;
+    }
+
+    /* ── WELCOME BANNER ── */
+    .welcome-banner {
+      background: linear-gradient(135deg, #fff8f4 0%, #fdeee4 50%, #f9c5a6 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px 36px;
+      margin-bottom: 28px; position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 24px var(--shadow);
+    }
+    .welcome-banner::before {
+      content: "";
+      position: absolute; width: 300px; height: 300px;
+      background: rgba(244,132,95,0.08); border-radius: 50%;
+      right: -60px; top: -80px; pointer-events: none;
+    }
+    .welcome-banner::after {
+      content: "";
+      position: absolute; width: 180px; height: 180px;
+      background: rgba(244,132,95,0.06); border-radius: 50%;
+      right: 120px; bottom: -60px; pointer-events: none;
+    }
+    .welcome-text { position: relative; z-index: 1; }
+    .welcome-greeting {
+      font-size: 13px; font-weight: 600; color: var(--peach);
+      letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .welcome-name {
+      font-family: var(--F); font-size: 30px; font-weight: 800;
+      color: var(--text); line-height: 1.15; letter-spacing: -0.5px;
+    }
+    .welcome-name span { color: var(--peach); }
+    .welcome-sub { font-size: 14px; color: var(--text-2); margin-top: 8px; }
+    .welcome-time { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+    .welcome-visual { position: relative; z-index: 1; }
+    .welcome-emoji { font-size: 72px; animation: floatY 3s ease-in-out infinite; }
+    @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+    /* ── STATS ── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px; margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px 22px;
+      display: flex; align-items: flex-start; gap: 14px;
+      box-shadow: 0 2px 12px var(--shadow-s);
+      transition: all 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--shadow); }
+    .stat-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .stat-icon.peach { background: rgba(244,132,95,0.12); }
+    .stat-icon.green { background: var(--green-l); }
+    .stat-icon.amber { background: var(--amber-l); }
+    .stat-body { flex: 1; }
+    .stat-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-val { font-family: var(--F); font-size: 26px; font-weight: 800; color: var(--text); margin-top: 2px; }
+    .stat-trend { font-size: 11px; color: var(--green); margin-top: 3px; font-weight: 600; }
+
+    /* ── PIPELINE ── */
+    .pipeline-wrap {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px var(--shadow-s);
+    }
+    .pipeline-label {
+      font-size: 11px; font-weight: 600; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+    }
+    .pipeline { display: flex; align-items: center; }
+    .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; position: relative; }
+    .step:not(:last-child)::after {
+      content: ""; position: absolute;
+      top: 16px; left: 50%; width: 100%; height: 2px;
+      background: var(--border); z-index: 0; border-radius: 1px;
+    }
+    .step.active:not(:last-child)::after { background: var(--peach-l); }
+    .step.done:not(:last-child)::after { background: var(--green); }
+    .step-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--border); background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; position: relative; z-index: 1; transition: all 0.25s;
+      font-weight: 700; color: var(--text-3);
+    }
+    .step.active .step-dot { border-color: var(--peach); color: var(--peach); background: rgba(244,132,95,0.08); box-shadow: 0 0 0 6px rgba(244,132,95,0.1); }
+    .step.done .step-dot { border-color: var(--green); background: var(--green-l); color: var(--green); }
+    .step-label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; }
+    .step.active .step-label { color: var(--peach); }
+    .step.done .step-label { color: var(--green); }
+
+    /* ── MAIN GRID ── */
+    .main-grid {
+      display: grid; grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+    }
+    @media(max-width:768px) { .main-grid { grid-template-columns: 1fr; } }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px;
+      box-shadow: 0 2px 12px var(--shadow-s);
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: var(--peach-l); }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-family: var(--F); font-size: 13px; font-weight: 700;
+      color: var(--text); letter-spacing: 0.3px;
+    }
+    .card-badge {
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .badge-peach { background: rgba(244,132,95,0.12); color: var(--peach); }
+    .badge-green { background: var(--green-l); color: var(--green); }
+    .badge-red   { background: var(--red-l); color: var(--red); }
+    .badge-amber { background: var(--amber-l); color: var(--amber); }
+    .badge-muted { background: var(--sand-l); color: var(--text-3); }
+
+    /* ── SCANNER ── */
+    .scanner-frame {
+      width: 100%; aspect-ratio: 16/8;
+      background: #f0e8e0; border-radius: 12px;
+      border: 1.5px solid var(--border); overflow: hidden;
+      position: relative; display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .corner { position: absolute; width: 18px; height: 18px; }
+    .corner.tl { top:8px; left:8px;   border-top:2px solid var(--peach); border-left:2px solid var(--peach); border-radius:4px 0 0 0; }
+    .corner.tr { top:8px; right:8px;  border-top:2px solid var(--peach); border-right:2px solid var(--peach); border-radius:0 4px 0 0; }
+    .corner.bl { bottom:8px; left:8px;  border-bottom:2px solid var(--peach); border-left:2px solid var(--peach); border-radius:0 0 0 4px; }
+    .corner.br { bottom:8px; right:8px; border-bottom:2px solid var(--peach); border-right:2px solid var(--peach); border-radius:0 0 4px 0; }
+    .scan-sweep {
+      position: absolute; left:0; right:0; height:2px;
+      background: linear-gradient(90deg, transparent, var(--peach), transparent);
+      box-shadow: 0 0 10px var(--peach);
+      animation: sweep 3s ease-in-out infinite; opacity: 0;
+    }
+    @keyframes sweep { 0%{top:0%;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{top:100%;opacity:0} }
+    #webcam { width:100%; height:100%; object-fit:cover; display:none; }
+    .scanner-idle {
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      color: var(--text-3);
+    }
+    .scanner-idle-txt { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      font-family: var(--F); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.5px; padding: 11px 18px;
+      border: none; border-radius: 10px; cursor: pointer;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--peach-l), var(--peach));
+      color: #fff; box-shadow: 0 4px 14px var(--shadow);
+    }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 7px 22px var(--shadow); }
+    .btn-verify {
+      background: linear-gradient(135deg, #68d398, #4caf7d);
+      color: #fff; box-shadow: 0 4px 14px rgba(76,175,125,0.2);
+    }
+    .btn-verify:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-ghost {
+      background: var(--sand-l); color: var(--text-2);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover:not(:disabled) { background: var(--sand); color: var(--text); }
+    .btn-row { display:flex; gap:8px; flex-wrap:wrap; }
+
+    /* ── SESSION BOX ── */
+    .session-box {
+      background: var(--sand-l); border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px 14px; margin-top: 14px; display: none;
+    }
+    .session-box.visible { display: block; }
+    .session-box-lbl { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .session-id-val { font-size: 11px; color: var(--peach); word-break: break-all; font-family: monospace; }
+
+    /* ── RESULT ── */
+    .result-panel { display:none; flex-direction:column; gap:14px; }
+    .result-panel.visible { display:flex; }
+    .result-verdict {
+      text-align:center; padding:20px; border-radius:12px; border:1.5px solid var(--border);
+    }
+    .result-verdict.live  { background: var(--green-l); border-color:rgba(76,175,125,0.3); }
+    .result-verdict.spoof { background: var(--red-l);   border-color:rgba(224,92,92,0.3); }
+    .result-verdict.failed{ background: var(--amber-l); border-color:rgba(244,165,53,0.3); }
+    .verdict-icon { font-size:36px; margin-bottom:6px; }
+    .verdict-title {
+      font-family:var(--F); font-size:16px; font-weight:800;
+      letter-spacing:1px; text-transform:uppercase;
+    }
+    .result-verdict.live   .verdict-title { color:var(--green); }
+    .result-verdict.spoof  .verdict-title { color:var(--red); }
+    .result-verdict.failed .verdict-title { color:var(--amber); }
+    .verdict-sub { font-size:12px; color:var(--text-2); margin-top:4px; }
+
+    .meter-header { display:flex; justify-content:space-between; font-size:11px; color:var(--text-3); margin-bottom:6px; font-weight:600; }
+    .meter-pct { font-family:var(--F); font-size:13px; color:var(--text); }
+    .meter-track { height:6px; background:var(--sand); border-radius:3px; overflow:hidden; }
+    .meter-fill { height:100%; width:0%; border-radius:3px; transition:width 1.2s cubic-bezier(.25,.46,.45,.94); }
+    .meter-fill.live  { background:linear-gradient(90deg,#68d398,var(--green)); }
+    .meter-fill.spoof { background:linear-gradient(90deg,#f08080,var(--red)); }
+    .meter-fill.failed{ background:linear-gradient(90deg,#f7c97a,var(--amber)); }
+
+    .meta-rows { display:flex; flex-direction:column; gap:6px; }
+    .meta-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:8px 12px; background:var(--surface); border:1px solid var(--border);
+      border-radius:8px;
+    }
+    .meta-key { font-size:10px; font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; }
+    .meta-val { font-size:12px; color:var(--text); }
+
+    /* ── TERMINAL ── */
+    .terminal {
+      background: #1a1208; border: 1px solid #3a2820;
+      border-radius: 12px; padding: 14px;
+      font-size: 11px; line-height: 1.9; max-height: 180px;
+      overflow-y: auto; font-family: monospace;
+      grid-column: 1/-1;
+    }
+    .terminal::-webkit-scrollbar { width: 3px; }
+    .terminal::-webkit-scrollbar-thumb { background: var(--peach-d); border-radius: 2px; }
+    .log-ts { color: #5a4a3a; }
+    .log-ok   { color: #6ddc9d; }
+    .log-err  { color: #f08080; }
+    .log-info { color: #f4a882; }
+    .log-warn { color: #f4c535; }
+    .log-dim  { color: #4a3a2e; }
+
+    /* ── SPINNER ── */
+    .spinner {
+      display:inline-block; width:11px; height:11px;
+      border:2px solid rgba(244,132,95,0.2); border-top-color:var(--peach);
+      border-radius:50%; animation:spin .7s linear infinite;
+    }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    .alert-banner {
+      padding:10px 14px; border-radius:8px; margin-top:10px;
+      font-size:12px; border:1px solid; display:none;
+    }
+    .alert-banner.error { background:var(--red-l); border-color:rgba(224,92,92,0.3); color:var(--red); display:block; }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top:48px; padding-top:18px; border-top:1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center;
+      font-size:11px; color:var(--text-3); flex-wrap:wrap; gap:8px;
+    }
+    .aws-pills { display:flex; gap:8px; flex-wrap:wrap; }
+    .aws-pill {
+      padding:4px 10px; border:1px solid var(--border); border-radius:6px;
+      color:var(--text-3); font-size:10px; font-weight:600;
+      background: var(--sand-l);
+    }
+
+    /* ── FLASHES ── */
+    .flashes { position:fixed; top:76px; right:24px; z-index:200; display:flex; flex-direction:column; gap:8px; max-width:340px; }
+    .flash { padding:12px 16px; border-radius:10px; font-size:12px; border:1px solid; box-shadow:0 4px 16px var(--shadow-s); }
+    .flash-success { background:var(--green-l); border-color:rgba(76,175,125,0.3); color:var(--green); }
+    .flash-info    { background:rgba(244,132,95,0.08); border-color:rgba(244,132,95,0.25); color:var(--peach); }
+    .flash-warning { background:var(--amber-l); border-color:rgba(244,165,53,0.3); color:var(--amber); }
+
+    @media(max-width:680px) { .stats-grid{grid-template-columns:1fr;} .wrapper{padding:20px 16px 60px;} .topbar{padding:0 16px;} }
+  </style>
+</head>
+<body>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flashes">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- ══ TOPBAR ════════════════════════════════ -->
+  <header class="topbar">
+    <a href="/dashboard" class="topbar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="9" cy="9" r="8" stroke="white" stroke-width="1.5" stroke-dasharray="4 2"/>
+          <ellipse cx="9" cy="9" rx="4.5" ry="3" fill="none" stroke="white" stroke-width="1.5"/>
+          <circle cx="9" cy="9" r="1.6" fill="white"/>
+        </svg>
+      </div>
+      <span class="brand-name">LivenessLens</span>
+    </a>
+
+    <div class="topbar-sep"></div>
+
+    <nav class="nav-links">
+      <a href="/dashboard" class="nav-link active">Dashboard</a>
+      <a href="#" class="nav-link">History</a>
+      <a href="#" class="nav-link">Settings</a>
+    </nav>
+
+    <div class="online-pill">
+      <span class="online-dot"></span> Live
+    </div>
+
+    <div class="user-avatar" title="{{ user.email if user else '' }}">
+      {{ user.name[0].upper() if user and user.name else 'U' }}
+    </div>
+
+    <form method="POST" action="/logout" style="margin:0;">
+      <button type="submit" class="btn-logout">⏻ Logout</button>
+    </form>
+  </header>
+
+  <!-- ══ WRAPPER ═══════════════════════════════ -->
+  <div class="wrapper">
+
+    <!-- ══ WELCOME BANNER ════ -->
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <div class="welcome-greeting" id="greetingTime">👋 Good morning</div>
+        <div class="welcome-name">
+          Welcome back, <span>{{ user.name.split()[0] if user and user.name else 'User' }}</span>!
+        </div>
+        <div class="welcome-sub">Your biometric dashboard is ready. Let's verify some identities.</div>
+        <div class="welcome-time" id="clockDisplay"></div>
+      </div>
+      <div class="welcome-visual">
+        <div class="welcome-emoji">🔍</div>
+      </div>
+    </div>
+
+    <!-- ══ STATS ═════════════ -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon peach">🔬</div>
+        <div class="stat-body">
+          <div class="stat-label">Sessions Today</div>
+          <div class="stat-val" id="statSessions">0</div>
+          <div class="stat-trend">Active workspace</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">📊</div>
+        <div class="stat-body">
+          <div class="stat-label">Last Confidence</div>
+          <div class="stat-val" id="statConf">—</div>
+          <div class="stat-trend" id="statTrend">Awaiting scan</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber">🎯</div>
+        <div class="stat-body">
+          <div class="stat-label">Last Result</div>
+          <div class="stat-val" id="statResult" style="font-size:14px;margin-top:6px;">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PIPELINE ══════════ -->
+    <div class="pipeline-wrap">
+      <div class="pipeline-label">Verification Pipeline</div>
+      <div class="pipeline" id="pipeline">
+        <div class="step active" id="step-1"><div class="step-dot">01</div><span class="step-label">Init</span></div>
+        <div class="step"        id="step-2"><div class="step-dot">02</div><span class="step-label">Camera</span></div>
+        <div class="step"        id="step-3"><div class="step-dot">03</div><span class="step-label">Analyse</span></div>
+        <div class="step"        id="step-4"><div class="step-dot">04</div><span class="step-label">Result</span></div>
+      </div>
+    </div>
+
+    <!-- ══ MAIN GRID ══════════ -->
+    <div class="main-grid">
+
+      <!-- Scanner card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Biometric Scanner</div>
+          <span class="card-badge badge-peach">AWS Rekognition</span>
+        </div>
+        <div class="scanner-frame" id="scannerFrame">
+          <div class="corner tl"></div><div class="corner tr"></div>
+          <div class="corner bl"></div><div class="corner br"></div>
+          <div class="scan-sweep" id="scanLine"></div>
+          <video id="webcam" autoplay playsinline></video>
+          <div class="scanner-idle" id="scannerIdle">
+            <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
+              <circle cx="32" cy="32" r="28" stroke="#b09888" stroke-width="1.5" stroke-dasharray="5 3"/>
+              <path d="M18 32 Q32 16 46 32 Q32 48 18 32Z" stroke="#b09888" stroke-width="1.5" fill="none"/>
+              <circle cx="32" cy="32" r="6" stroke="#b09888" stroke-width="1.5" fill="none"/>
+              <circle cx="32" cy="32" r="2" fill="#b09888"/>
+            </svg>
+            <span class="scanner-idle-txt">Camera offline</span>
+          </div>
+        </div>
+        <div id="alertBanner" class="alert-banner"></div>
+        <div class="session-box" id="sessionBox">
+          <div class="session-box-lbl">Active Session ID</div>
+          <div class="session-id-val" id="sessionIdDisplay">—</div>
+        </div>
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn btn-primary" id="btnCreateSession"><span id="createIcon">⬡</span><span id="createText">Create Session</span></button>
+          <button class="btn btn-primary" id="btnStartCamera" disabled><span>◉</span> Camera</button>
+          <button class="btn btn-ghost" id="btnReset">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- Verification card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Verification</div>
+          <span class="card-badge badge-muted" id="verifyBadge">Pending</span>
+        </div>
+
+        <div class="result-panel" id="resultPanel">
+          <div class="result-verdict" id="resultVerdict">
+            <div class="verdict-icon" id="verdictIcon">—</div>
+            <div class="verdict-title" id="verdictTitle">—</div>
+            <div class="verdict-sub" id="verdictSub">—</div>
+          </div>
+          <div>
+            <div class="meter-header">
+              <span>Liveness Confidence</span>
+              <span class="meter-pct" id="confidenceText">—</span>
+            </div>
+            <div class="meter-track">
+              <div class="meter-fill" id="meterFill"></div>
+            </div>
+          </div>
+          <div class="meta-rows" id="metaRows"></div>
+        </div>
+
+        <div id="verifyPrompt">
+          <p style="font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:16px;">
+            After the camera is active, click <strong style="color:var(--peach)">Run Verification</strong> to submit for deepfake analysis.
+          </p>
+          <button class="btn btn-verify" id="btnVerify" disabled>
+            <span id="verifyIcon">⬡</span>
+            <span id="verifyText">Run Verification</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Terminal log -->
+      <div class="terminal" id="terminal">
+        <span style="color:#5a4a3a;display:block">// LivenessLens dashboard initialised</span>
+        <span style="color:#5a4a3a;display:block">// Authenticated user: {{ user.email if user else 'unknown' }}</span>
+        <span style="color:#5a4a3a;display:block">// Session start: <span id="startTs"></span></span>
+      </div>
+
+    </div><!-- /main-grid -->
+
+    <footer>
+      <span>© 2025 LivenessLens &nbsp;·&nbsp; Logged in as <strong style="color:var(--peach)">{{ user.name if user else 'User' }}</strong></span>
+      <div class="aws-pills">
+        <span class="aws-pill">Rekognition</span>
+        <span class="aws-pill">S3</span>
+        <span class="aws-pill">SNS</span>
+        <span class="aws-pill">SES</span>
+        <span class="aws-pill">Lambda</span>
+        <span class="aws-pill">DynamoDB</span>
+      </div>
+    </footer>
+  </div>
+
+<script>
+  /* ── DOM ── */
+  const btnCreate  = document.getElementById("btnCreateSession");
+  const btnCamera  = document.getElementById("btnStartCamera");
+  const btnVerify  = document.getElementById("btnVerify");
+  const btnReset   = document.getElementById("btnReset");
+  const sessionBox = document.getElementById("sessionBox");
+  const sessionDisp= document.getElementById("sessionIdDisplay");
+  const webcam     = document.getElementById("webcam");
+  const idle       = document.getElementById("scannerIdle");
+  const scanLine   = document.getElementById("scanLine");
+  const terminal   = document.getElementById("terminal");
+  const resultPanel= document.getElementById("resultPanel");
+  const verifyPrmpt= document.getElementById("verifyPrompt");
+  const alertBanner= document.getElementById("alertBanner");
+
+  let sessionId = null, camStream = null, sessionCount = 0;
+
+  /* ── Clock & greeting ── */
+  document.getElementById("startTs").textContent = new Date().toISOString().slice(0,19).replace('T',' ');
+  function tick() {
+    const now = new Date();
+    const el = document.getElementById("clockDisplay");
+    if (el) el.textContent = now.toUTCString().slice(0,25);
+    const h = now.getHours();
+    const gr = document.getElementById("greetingTime");
+    if (gr) {
+      if (h < 12) gr.textContent = "👋 Good morning";
+      else if (h < 17) gr.textContent = "☀️ Good afternoon";
+      else gr.textContent = "🌙 Good evening";
+    }
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* ── Flash hide ── */
+  setTimeout(() => {
+    document.querySelectorAll(".flash").forEach(el => {
+      el.style.transition="opacity .5s"; el.style.opacity="0";
+      setTimeout(()=>el.remove(),500);
+    });
+  }, 4000);
+
+  /* ── Log ── */
+  function log(msg, type="info") {
+    const ts = new Date().toISOString().slice(11,19);
+    const ln = document.createElement("span");
+    ln.style.cssText = "display:block;margin-bottom:1px;";
+    const colorMap = {ok:"#6ddc9d",err:"#f08080",info:"#f4a882",warn:"#f4c535",dim:"#4a3a2e"};
+    ln.innerHTML = `<span style="color:#5a4a3a">[${ts}]</span>  <span style="color:${colorMap[type]||colorMap.info}">${msg}</span>`;
+    terminal.appendChild(ln);
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  /* ── Steps ── */
+  function setStep(n) {
+    for (let i=1;i<=4;i++) {
+      const el = document.getElementById(`step-${i}`);
+      el.classList.remove("active","done");
+      if (i<n) el.classList.add("done");
+      if (i===n) el.classList.add("active");
+    }
+  }
+
+  function showError(msg) { alertBanner.textContent="⚠  "+msg; alertBanner.className="alert-banner error"; }
+  function clearError()   { alertBanner.className="alert-banner"; }
+
+  function setLoading(btn, iconId, textId, origIcon, origText, on) {
+    btn.disabled = on;
+    document.getElementById(iconId).innerHTML = on ? '<span class="spinner"></span>' : origIcon;
+    document.getElementById(textId).textContent = on ? "Please wait…" : origText;
+  }
+
+  /* ── 1. Create session ── */
+  btnCreate.addEventListener("click", async () => {
+    clearError();
+    setLoading(btnCreate,"createIcon","createText","⬡","Create Session",true);
+    log("Requesting Rekognition liveness session…","info");
+    setStep(1);
+    try {
+      const res = await fetch("/create-session",{method:"POST"});
+      const data = await res.json();
+      if (!res.ok||!data.success) throw new Error(data.error||"Failed to create session.");
+      sessionId = data.session_id;
+      sessionDisp.textContent = sessionId;
+      sessionBox.classList.add("visible");
+      log(`Session created ✓  →  ${sessionId}`,"ok");
+      setStep(2); btnCreate.disabled=true; btnCamera.disabled=false; btnVerify.disabled=false;
+      sessionCount++;
+      document.getElementById("statSessions").textContent = sessionCount;
+    } catch(e) {
+      log(`ERROR: ${e.message}`,"err"); showError(e.message);
+    } finally { setLoading(btnCreate,"createIcon","createText","⬡","Create Session",false); }
+  });
+
+  /* ── 2. Camera ── */
+  btnCamera.addEventListener("click", async () => {
+    clearError(); log("Requesting camera access…","info");
+    try {
+      camStream = await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+      webcam.srcObject = camStream; webcam.style.display="block";
+      idle.style.display="none"; scanLine.style.animationPlayState="running";
+      log("Camera activated ✓","ok"); setStep(2); btnCamera.disabled=true;
+    } catch(e) { log(`Camera error: ${e.message}`,"err"); showError("Camera access denied."); }
+  });
+
+  /* ── 3. Verify ── */
+  btnVerify.addEventListener("click", async () => {
+    if (!sessionId) { showError("No active session."); return; }
+    clearError();
+    setLoading(btnVerify,"verifyIcon","verifyText","⬡","Run Verification",true);
+    log("Submitting for liveness analysis…","info"); setStep(3);
+    try {
+      const res = await fetch("/get-result",{
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({session_id:sessionId})
+      });
+      const data = await res.json();
+      if (!res.ok||!data.success) throw new Error(data.error||"Verification failed.");
+      log(`Result: ${data.status} — Confidence: ${data.confidence}%`,"ok");
+      if (data.alert_sent) log("⚠ SNS spoof alert dispatched","warn");
+      if (data.email_sent) log("⚠ Spoof alert email sent via SES","warn");
+      if (data.lambda_invoked) log("Lambda processor invoked ✓","ok");
+      if (data.log_saved) log("Audit log persisted to S3 ✓","ok");
+      renderResult(data); setStep(4);
+      document.getElementById("statConf").textContent = data.confidence+"%";
+      document.getElementById("statResult").textContent = data.status;
+      document.getElementById("statResult").style.color = data.status==="LIVE"?"var(--green)":data.status==="SPOOF"?"var(--red)":"var(--amber)";
+      document.getElementById("statTrend").textContent = data.status==="LIVE"?"✓ Live verified":"⚠ Check result";
+      document.getElementById("verifyBadge").textContent = data.status;
+      document.getElementById("verifyBadge").className = "card-badge "+(data.status==="LIVE"?"badge-green":data.status==="SPOOF"?"badge-red":"badge-amber");
+    } catch(e) { log(`ERROR: ${e.message}`,"err"); showError(e.message); }
+    finally { setLoading(btnVerify,"verifyIcon","verifyText","⬡","Run Verification",false); }
+  });
+
+  /* ── Render result ── */
+  function renderResult(d) {
+    const isLive=d.status==="LIVE", isSpoof=d.status==="SPOOF";
+    const cls = isLive?"live":isSpoof?"spoof":"failed";
+    document.getElementById("verdictIcon").textContent = isLive?"✅":isSpoof?"🚫":"⚠️";
+    document.getElementById("verdictTitle").textContent = isLive?"Identity Verified":isSpoof?"Spoof Detected":"Challenge Failed";
+    document.getElementById("verdictSub").textContent = isLive?"Live human confirmed":isSpoof?"Possible deepfake detected":"Challenge not completed";
+    document.getElementById("resultVerdict").className = `result-verdict ${cls}`;
+    document.getElementById("confidenceText").textContent = `${d.confidence}%`;
+    const fill = document.getElementById("meterFill");
+    fill.className=`meter-fill ${cls}`; fill.style.width="0%";
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ fill.style.width=`${d.confidence}%`; }));
+    const rows=[
+      {k:"Confidence",v:`${d.confidence}%`},
+      {k:"Decision",v:d.status,b:isLive?"badge-green":isSpoof?"badge-red":"badge-amber"},
+      {k:"Raw Status",v:d.raw_status,b:"badge-peach"},
+      {k:"SNS Alert",v:d.alert_sent?"Sent":"No",b:d.alert_sent?"badge-amber":"badge-muted"},
+      {k:"Email (SES)",v:d.email_sent?"Sent":"No",b:d.email_sent?"badge-amber":"badge-muted"},
+      {k:"Lambda",v:d.lambda_invoked?"Invoked":"No",b:d.lambda_invoked?"badge-peach":"badge-muted"},
+      {k:"S3 Log",v:d.log_saved?"Saved":"No",b:d.log_saved?"badge-green":"badge-muted"},
+    ];
+    const mr=document.getElementById("metaRows"); mr.innerHTML="";
+    rows.forEach(({k,v,b})=>{
+      const r=document.createElement("div"); r.className="meta-row";
+      r.innerHTML=`<span class="meta-key">${k}</span>`+(b?`<span class="card-badge ${b}">${v}</span>`:`<span class="meta-val">${v}</span>`);
+      mr.appendChild(r);
+    });
+    verifyPrmpt.style.display="none"; resultPanel.classList.add("visible");
+  }
+
+  /* ── Reset ── */
+  btnReset.addEventListener("click",()=>{
+    if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+    webcam.style.display="none"; idle.style.display="flex";
+    scanLine.style.animationPlayState="paused";
+    sessionId=null; sessionBox.classList.remove("visible"); sessionDisp.textContent="—";
+    btnCreate.disabled=false; btnCamera.disabled=true; btnVerify.disabled=true;
+    resultPanel.classList.remove("visible"); verifyPrmpt.style.display="";
+    clearError(); setStep(1);
+    document.getElementById("verifyBadge").textContent="Pending";
+    document.getElementById("verifyBadge").className="card-badge badge-muted";
+    log("─── Session reset ───────────────────────────","dim");
+  });
+</script>
+</body>
+</html>

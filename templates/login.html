@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LivenessLens — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #fdf6f0;
+      --card:     #ffffff;
+      --peach:    #f4845f;
+      --peach-l:  #f9a882;
+      --peach-d:  #e05c35;
+      --sand:     #f0d9c8;
+      --cream:    #fef9f5;
+      --text:     #1a1208;
+      --text-2:   #6b5a4e;
+      --text-3:   #b09888;
+      --border:   #eeddd3;
+      --green:    #4caf7d;
+      --red:      #e05c5c;
+      --shadow:   rgba(244,132,95,0.18);
+      --F: 'Sora', sans-serif;
+      --B: 'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      font-family: var(--B);
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Left decorative panel */
+    .left-panel {
+      width: 52%;
+      background: linear-gradient(145deg, #f9c5a6 0%, #f4845f 45%, #e05c35 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .left-panel::before {
+      content: "";
+      position: absolute;
+      width: 420px; height: 420px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      top: -80px; left: -80px;
+    }
+    .left-panel::after {
+      content: "";
+      position: absolute;
+      width: 300px; height: 300px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+      bottom: -60px; right: -60px;
+    }
+    .left-content {
+      position: relative; z-index: 2;
+      text-align: center; padding: 48px;
+    }
+    .brand-logo {
+      display: flex; align-items: center; gap: 14px;
+      justify-content: center; margin-bottom: 48px;
+    }
+    .logo-icon {
+      width: 52px; height: 52px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .logo-icon svg { width: 28px; height: 28px; }
+    .brand-name {
+      font-family: var(--F);
+      font-size: 22px; font-weight: 800;
+      color: #fff; letter-spacing: -0.5px;
+    }
+    .hero-mockup {
+      width: 280px; height: 280px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 28px;
+      margin: 0 auto 36px;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.25);
+      position: relative;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.15);
+    }
+    .face-scan-anim {
+      width: 160px; height: 160px; position: relative;
+    }
+    .face-outline {
+      width: 100%; height: 100%;
+      border-radius: 50% 50% 45% 45%;
+      border: 2px solid rgba(255,255,255,0.8);
+      position: relative;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+      50% { box-shadow: 0 0 0 20px rgba(255,255,255,0); }
+    }
+    .scan-ring {
+      position: absolute; inset: -16px;
+      border: 2px dashed rgba(255,255,255,0.3);
+      border-radius: 50%;
+      animation: spin 6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .scan-dots {
+      position: absolute; inset: -32px;
+      border-radius: 50%;
+      animation: spin 10s linear infinite reverse;
+    }
+    .scan-dot {
+      position: absolute; width: 6px; height: 6px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 50%;
+    }
+    .scan-dot:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); }
+    .scan-dot:nth-child(2) { right: 0; top: 50%; transform: translateY(-50%); }
+    .scan-dot:nth-child(3) { bottom: 0; left: 50%; transform: translateX(-50%); }
+    .scan-dot:nth-child(4) { left: 0; top: 50%; transform: translateY(-50%); }
+    .face-scan-line {
+      position: absolute; left: 10%; right: 10%; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+      top: 0;
+      animation: scanFace 2.5s ease-in-out infinite;
+    }
+    @keyframes scanFace {
+      0% { top: 10%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 90%; opacity: 0; }
+    }
+    .corner-tl, .corner-tr, .corner-bl, .corner-br {
+      position: absolute; width: 20px; height: 20px;
+    }
+    .corner-tl { top: 8px; left: 8px; border-top: 2px solid rgba(255,255,255,0.9); border-left: 2px solid rgba(255,255,255,0.9); border-radius: 4px 0 0 0; }
+    .corner-tr { top: 8px; right: 8px; border-top: 2px solid rgba(255,255,255,0.9); border-right: 2px solid rgba(255,255,255,0.9); border-radius: 0 4px 0 0; }
+    .corner-bl { bottom: 8px; left: 8px; border-bottom: 2px solid rgba(255,255,255,0.9); border-left: 2px solid rgba(255,255,255,0.9); border-radius: 0 0 0 4px; }
+    .corner-br { bottom: 8px; right: 8px; border-bottom: 2px solid rgba(255,255,255,0.9); border-right: 2px solid rgba(255,255,255,0.9); border-radius: 0 0 4px 0; }
+    .left-tagline {
+      font-family: var(--F); font-size: 26px; font-weight: 700;
+      color: #fff; line-height: 1.3; margin-bottom: 12px;
+    }
+    .left-sub { font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.6; }
+    .floating-badge {
+      position: absolute; z-index: 3;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 12px; padding: 8px 14px;
+      font-size: 11px; color: #fff; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .floating-badge.top-right { top: 80px; right: 40px; animation: floatY 3s ease-in-out infinite; }
+    .floating-badge.bottom-left { bottom: 120px; left: 40px; animation: floatY 3.5s ease-in-out infinite 0.5s; }
+    @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #4cff9d; }
+
+    /* Right form panel */
+    .right-panel {
+      width: 48%;
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px 48px;
+      overflow-y: auto;
+    }
+    .form-container { width: 100%; max-width: 400px; }
+    .form-header { margin-bottom: 36px; }
+    .form-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--peach); margin-bottom: 10px;
+    }
+    .form-title {
+      font-family: var(--F); font-size: 32px; font-weight: 800;
+      color: var(--text); line-height: 1.15; letter-spacing: -0.5px;
+    }
+    .form-sub { font-size: 14px; color: var(--text-2); margin-top: 8px; }
+
+    /* Face auth toggle */
+    .auth-toggle {
+      display: flex; gap: 8px; margin-bottom: 28px;
+      background: var(--sand); border-radius: 12px; padding: 5px;
+    }
+    .toggle-btn {
+      flex: 1; padding: 9px 12px; border: none;
+      border-radius: 8px; font-family: var(--F);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+      cursor: pointer; transition: all 0.25s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      color: var(--text-3); background: transparent;
+    }
+    .toggle-btn.active {
+      background: #fff; color: var(--peach);
+      box-shadow: 0 2px 12px rgba(244,132,95,0.2);
+    }
+
+    /* Face scan section */
+    .face-auth-section { display: none; text-align: center; margin-bottom: 20px; }
+    .face-auth-section.visible { display: block; }
+    .face-cam-wrap {
+      width: 200px; height: 200px; border-radius: 50%;
+      border: 3px solid var(--border); overflow: hidden;
+      margin: 0 auto 16px; position: relative;
+      background: var(--sand);
+    }
+    .face-cam-wrap.scanning { border-color: var(--peach); box-shadow: 0 0 0 8px rgba(244,132,95,0.12); }
+    .face-cam-wrap.verified { border-color: var(--green); box-shadow: 0 0 0 8px rgba(76,175,125,0.12); }
+    #faceVideo { width: 100%; height: 100%; object-fit: cover; }
+    .face-cam-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .face-status { font-size: 13px; color: var(--text-2); font-weight: 500; }
+    .btn-face-scan {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--peach-l), var(--peach));
+      color: #fff; border: none; border-radius: 12px;
+      font-family: var(--F); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.25s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 6px 24px var(--shadow);
+    }
+    .btn-face-scan:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--shadow); }
+
+    /* Form fields */
+    .form-section { display: block; }
+    .form-section.hidden { display: none; }
+    .form-group { margin-bottom: 18px; }
+    label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text-2); margin-bottom: 7px; letter-spacing: 0.3px;
+    }
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text-3); font-size: 16px; pointer-events: none;
+    }
+    input {
+      width: 100%; background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 13px 14px 13px 44px;
+      font-family: var(--B); font-size: 14px; color: var(--text);
+      outline: none; transition: all 0.2s;
+    }
+    input:focus { border-color: var(--peach); box-shadow: 0 0 0 4px rgba(244,132,95,0.1); background: #fff; }
+    input::placeholder { color: var(--text-3); }
+
+    .btn-submit {
+      width: 100%; padding: 15px;
+      background: linear-gradient(135deg, var(--peach), var(--peach-d));
+      color: #fff; border: none; border-radius: 14px;
+      font-family: var(--F); font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: all 0.25s; letter-spacing: 0.3px;
+      box-shadow: 0 8px 28px var(--shadow);
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit::before {
+      content: ""; position: absolute;
+      top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      transition: left 0.5s;
+    }
+    .btn-submit:hover::before { left: 150%; }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 36px var(--shadow); }
+
+    .divider { display: flex; align-items: center; gap: 14px; margin: 22px 0; }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text { font-size: 12px; color: var(--text-3); }
+
+    .form-footer { text-align: center; margin-top: 24px; font-size: 13px; color: var(--text-2); }
+    .form-footer a { color: var(--peach); font-weight: 600; text-decoration: none; }
+    .form-footer a:hover { text-decoration: underline; }
+
+    .error-box {
+      background: #fff2f2; border: 1.5px solid #ffcdd2;
+      border-radius: 10px; padding: 11px 14px;
+      font-size: 13px; color: var(--red); margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .left-panel { display: none; }
+      .right-panel { width: 100%; padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="floating-badge top-right">
+      <span class="badge-dot"></span> AI-Powered
+    </div>
+    <div class="floating-badge bottom-left">
+      🔒 Secure Login
+    </div>
+
+    <div class="left-content">
+      <div class="brand-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="14" cy="14" r="12" stroke="white" stroke-width="1.5" stroke-dasharray="5 3"/>
+            <ellipse cx="14" cy="14" rx="7" ry="5" fill="none" stroke="white" stroke-width="1.5"/>
+            <circle cx="14" cy="14" r="2.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="brand-name">LivenessLens</span>
+      </div>
+
+      <div class="hero-mockup">
+        <div class="corner-tl"></div><div class="corner-tr"></div>
+        <div class="corner-bl"></div><div class="corner-br"></div>
+        <div class="face-scan-anim">
+          <div class="face-outline">
+            <div class="face-scan-line"></div>
+          </div>
+          <div class="scan-ring"></div>
+          <div class="scan-dots">
+            <div class="scan-dot"></div>
+            <div class="scan-dot"></div>
+            <div class="scan-dot"></div>
+            <div class="scan-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="left-tagline">Verify Your Identity<br/>Instantly & Securely</div>
+      <div class="left-sub">Advanced biometric liveness detection<br/>powered by AWS Rekognition AI</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="form-container">
+
+      <div class="form-header">
+        <div class="form-eyebrow">Welcome back</div>
+        <div class="form-title">Sign In to<br/>LivenessLens</div>
+        <div class="form-sub">Choose how you'd like to authenticate</div>
+      </div>
+
+      <!-- Auth method toggle -->
+      <div class="auth-toggle">
+        <button class="toggle-btn active" id="btnPasswordTab" onclick="switchTab('password')">
+          🔑 Password
+        </button>
+        <button class="toggle-btn" id="btnFaceTab" onclick="switchTab('face')">
+          👁 Face ID
+        </button>
+      </div>
+
+      {% if error %}
+        <div class="error-box">⚠ {{ error }}</div>
+      {% endif %}
+
+      <!-- FACE AUTH SECTION -->
+      <div class="face-auth-section" id="faceSection">
+        <div class="face-cam-wrap" id="faceCamWrap">
+          <div class="face-cam-placeholder" id="facePlaceholder">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="20" r="10" stroke="#b09888" stroke-width="1.5"/>
+              <path d="M8 40c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="#b09888" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span style="font-size:12px;color:var(--text-3)">Camera off</span>
+          </div>
+          <video id="faceVideo" autoplay playsinline style="display:none;"></video>
+        </div>
+        <div class="face-status" id="faceStatus">Activate camera to scan your face</div>
+        <br/>
+        <button class="btn-face-scan" id="btnFaceScan" onclick="startFaceScan()">
+          👁 Start Face Scan
+        </button>
+        <div style="margin-top:14px;font-size:12px;color:var(--text-3)">
+          Position your face in the circle and look directly at the camera
+        </div>
+      </div>
+
+      <!-- PASSWORD SECTION -->
+      <form method="POST" action="/login" id="passwordSection" class="form-section">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉</span>
+            <input type="email" id="email" name="email"
+              placeholder="you@example.com"
+              value="{{ email or '' }}" required autocomplete="email"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="password" name="password"
+              placeholder="Enter your password"
+              required autocomplete="current-password"/>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">
+          Sign In →
+        </button>
+      </form>
+
+      <div class="divider"><div class="divider-line"></div><span class="divider-text">or</span><div class="divider-line"></div></div>
+
+      <div class="form-footer">
+        Don't have an account? <a href="/register">Create one →</a>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let faceStream = null;
+
+  function switchTab(tab) {
+    const faceSection = document.getElementById('faceSection');
+    const passSection = document.getElementById('passwordSection');
+    const btnPass = document.getElementById('btnPasswordTab');
+    const btnFace = document.getElementById('btnFaceTab');
+
+    if (tab === 'face') {
+      faceSection.classList.add('visible');
+      passSection.classList.add('hidden');
+      btnFace.classList.add('active');
+      btnPass.classList.remove('active');
+    } else {
+      faceSection.classList.remove('visible');
+      passSection.classList.remove('hidden');
+      btnPass.classList.add('active');
+      btnFace.classList.remove('active');
+      stopFace();
+    }
+  }
+
+  async function startFaceScan() {
+    const wrap = document.getElementById('faceCamWrap');
+    const video = document.getElementById('faceVideo');
+    const placeholder = document.getElementById('facePlaceholder');
+    const status = document.getElementById('faceStatus');
+    const btn = document.getElementById('btnFaceScan');
+
+    try {
+      faceStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = faceStream;
+      video.style.display = 'block';
+      placeholder.style.display = 'none';
+      wrap.classList.add('scanning');
+      status.textContent = 'Scanning face… Hold still';
+      btn.textContent = '⟳ Scanning…';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        wrap.classList.remove('scanning');
+        wrap.classList.add('verified');
+        status.style.color = 'var(--green)';
+        status.textContent = '✓ Face recognised — redirecting…';
+        btn.textContent = '✓ Verified';
+        // In production: POST to /face-login with captured frame
+        // For now simulate redirect after 1.5s
+        // window.location.href = '/dashboard';
+      }, 3000);
+    } catch (e) {
+      status.textContent = '⚠ Camera access denied';
+      status.style.color = 'var(--red)';
+    }
+  }
+
+  function stopFace() {
+    if (faceStream) { faceStream.getTracks().forEach(t => t.stop()); faceStream = null; }
+    const video = document.getElementById('faceVideo');
+    const placeholder = document.getElementById('facePlaceholder');
+    video.style.display = 'none';
+    placeholder.style.display = 'flex';
+    document.getElementById('faceCamWrap').className = 'face-cam-wrap';
+    document.getElementById('faceStatus').textContent = 'Activate camera to scan your face';
+    document.getElementById('faceStatus').style.color = '';
+    document.getElementById('btnFaceScan').textContent = '👁 Start Face Scan';
+    document.getElementById('btnFaceScan').disabled = false;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LivenessLens — Create Account</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #fdf6f0;
+      --card:     #ffffff;
+      --peach:    #f4845f;
+      --peach-l:  #f9a882;
+      --peach-d:  #e05c35;
+      --sand:     #f0d9c8;
+      --cream:    #fef9f5;
+      --text:     #1a1208;
+      --text-2:   #6b5a4e;
+      --text-3:   #b09888;
+      --border:   #eeddd3;
+      --green:    #4caf7d;
+      --red:      #e05c5c;
+      --amber:    #f4a535;
+      --shadow:   rgba(244,132,95,0.18);
+      --F: 'Sora', sans-serif;
+      --B: 'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      font-family: var(--B);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Right decorative panel */
+    .right-deco {
+      width: 46%;
+      background: linear-gradient(160deg, #fde3d0 0%, #f4845f 50%, #c94a22 100%);
+      position: fixed; right: 0; top: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .right-deco::before {
+      content: "";
+      position: absolute; width: 380px; height: 380px;
+      background: rgba(255,255,255,0.1); border-radius: 50%;
+      bottom: -80px; left: -80px;
+    }
+    .deco-content { position: relative; z-index: 2; padding: 40px; text-align: center; }
+    .deco-circle {
+      width: 260px; height: 260px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%; margin: 0 auto 32px;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid rgba(255,255,255,0.3);
+      backdrop-filter: blur(8px);
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    }
+    .deco-circle::before {
+      content: "";
+      position: absolute; inset: -16px;
+      border: 1px dashed rgba(255,255,255,0.25);
+      border-radius: 50%;
+      animation: spin 12s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .deco-face-icon { font-size: 80px; animation: floatY 3s ease-in-out infinite; }
+    @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    .deco-features { display: flex; flex-direction: column; gap: 12px; margin-top: 28px; }
+    .deco-feat {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 12px; padding: 11px 16px;
+      display: flex; align-items: center; gap: 10px;
+      text-align: left;
+    }
+    .feat-icon { font-size: 18px; }
+    .feat-text { font-size: 13px; font-weight: 600; color: #fff; }
+    .feat-sub  { font-size: 11px; color: rgba(255,255,255,0.7); }
+    .deco-title {
+      font-family: var(--F); font-size: 24px; font-weight: 800;
+      color: #fff; line-height: 1.3; margin-bottom: 6px;
+    }
+    .deco-sub { font-size: 13px; color: rgba(255,255,255,0.75); }
+
+    /* Left form */
+    .left-form {
+      width: 54%; padding: 48px 56px 48px 64px;
+      overflow-y: auto; min-height: 100vh;
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500; color: var(--text-3);
+      text-decoration: none; margin-bottom: 36px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--peach); }
+    .brand-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 40px;
+    }
+    .brand-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--peach-l), var(--peach));
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px var(--shadow);
+    }
+    .brand-icon svg { width: 20px; height: 20px; }
+    .brand-text { font-family: var(--F); font-size: 16px; font-weight: 800; color: var(--text); }
+
+    .form-title {
+      font-family: var(--F); font-size: 30px; font-weight: 800;
+      color: var(--text); line-height: 1.2; letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .form-sub { font-size: 14px; color: var(--text-2); margin-bottom: 28px; }
+
+    /* Steps indicator */
+    .steps-bar {
+      display: flex; gap: 8px; margin-bottom: 28px;
+    }
+    .step-item { flex: 1; }
+    .step-track { height: 4px; border-radius: 2px; background: var(--sand); transition: background 0.3s; }
+    .step-track.active { background: var(--peach); }
+    .step-track.done { background: var(--green); }
+    .step-lbl { font-size: 10px; font-weight: 600; color: var(--text-3); margin-top: 5px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .step-lbl.active { color: var(--peach); }
+    .step-lbl.done { color: var(--green); }
+
+    /* Face registration section */
+    .face-reg-card {
+      background: var(--cream); border: 2px dashed var(--border);
+      border-radius: 18px; padding: 28px; text-align: center;
+      margin-bottom: 24px;
+    }
+    .face-reg-card.active { border-color: var(--peach); border-style: solid; background: #fff8f5; }
+    .face-reg-card.done { border-color: var(--green); border-style: solid; background: #f5fff9; }
+    .face-cam-circle {
+      width: 160px; height: 160px; border-radius: 50%;
+      overflow: hidden; margin: 0 auto 16px;
+      border: 3px solid var(--border);
+      background: var(--sand); position: relative;
+      transition: all 0.3s;
+    }
+    .face-cam-circle.scanning { border-color: var(--peach); box-shadow: 0 0 0 8px rgba(244,132,95,0.1); }
+    .face-cam-circle.done { border-color: var(--green); box-shadow: 0 0 0 8px rgba(76,175,125,0.1); }
+    #regFaceVideo { width: 100%; height: 100%; object-fit: cover; }
+    .face-placeholder-inner {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 6px;
+    }
+    .reg-face-status { font-size: 13px; color: var(--text-2); font-weight: 500; }
+    .reg-face-hint { font-size: 11px; color: var(--text-3); line-height: 1.5; margin-bottom: 12px; }
+    .btn-reg-face {
+      padding: 11px 24px;
+      background: linear-gradient(135deg, var(--peach-l), var(--peach));
+      color: #fff; border: none; border-radius: 10px;
+      font-family: var(--F); font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.25s;
+      box-shadow: 0 4px 16px var(--shadow);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-reg-face:hover { transform: translateY(-1px); box-shadow: 0 8px 24px var(--shadow); }
+    .btn-reg-face:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .form-group { margin-bottom: 4px; }
+    label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text-2); margin-bottom: 7px;
+    }
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 15px; pointer-events: none;
+    }
+    input {
+      width: 100%; background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 12px 14px 12px 42px;
+      font-family: var(--B); font-size: 14px; color: var(--text);
+      outline: none; transition: all 0.2s;
+    }
+    input:focus { border-color: var(--peach); box-shadow: 0 0 0 4px rgba(244,132,95,0.1); background: #fff; }
+    input::placeholder { color: var(--text-3); }
+    input.invalid { border-color: var(--red); }
+
+    /* Password strength */
+    .pw-strength { margin-top: 7px; }
+    .pw-track { height: 4px; background: var(--sand); border-radius: 2px; overflow: hidden; }
+    .pw-fill { height: 100%; width: 0%; border-radius: 2px; transition: all 0.3s; }
+    .pw-label { font-size: 10px; margin-top: 4px; }
+
+    .errors-list {
+      background: #fff2f2; border: 1.5px solid #ffcdd2;
+      border-radius: 12px; padding: 12px 14px; margin-bottom: 20px;
+    }
+    .errors-list li {
+      font-size: 12px; color: var(--red); list-style: none;
+      padding: 2px 0; display: flex; gap: 6px; align-items: center;
+    }
+    .errors-list li::before { content: "⚠"; font-size: 10px; }
+
+    .aws-info {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: rgba(244,132,95,0.06);
+      border: 1px solid rgba(244,132,95,0.2);
+      border-radius: 10px; padding: 11px 13px;
+      margin-bottom: 22px; font-size: 12px; color: var(--text-2); line-height: 1.5;
+    }
+
+    .btn-submit {
+      width: 100%; padding: 15px;
+      background: linear-gradient(135deg, var(--peach), var(--peach-d));
+      color: #fff; border: none; border-radius: 14px;
+      font-family: var(--F); font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: all 0.25s; letter-spacing: 0.3px;
+      box-shadow: 0 8px 28px var(--shadow);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      position: relative; overflow: hidden;
+    }
+    .btn-submit::before {
+      content: ""; position: absolute; top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      transition: left 0.5s;
+    }
+    .btn-submit:hover::before { left: 150%; }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 36px var(--shadow); }
+
+    .form-footer { text-align: center; margin-top: 22px; font-size: 13px; color: var(--text-2); }
+    .form-footer a { color: var(--peach); font-weight: 600; text-decoration: none; }
+    .form-footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 900px) {
+      .right-deco { display: none; }
+      .left-form { width: 100%; padding: 32px 24px; }
+    }
+    @media (max-width: 480px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid .full { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- RIGHT DECORATIVE PANEL -->
+  <div class="right-deco">
+    <div class="deco-content">
+      <div class="deco-circle">
+        <div class="deco-face-icon">🫣</div>
+      </div>
+      <div class="deco-title">Register Your<br/>Biometric Profile</div>
+      <div class="deco-sub">One-time face setup for instant future logins</div>
+      <div class="deco-features">
+        <div class="deco-feat">
+          <span class="feat-icon">🛡️</span>
+          <div>
+            <div class="feat-text">Zero Spoofing</div>
+            <div class="feat-sub">AWS Rekognition liveness</div>
+          </div>
+        </div>
+        <div class="deco-feat">
+          <span class="feat-icon">⚡</span>
+          <div>
+            <div class="feat-text">1-Second Verify</div>
+            <div class="feat-sub">Instant AI verification</div>
+          </div>
+        </div>
+        <div class="deco-feat">
+          <span class="feat-icon">🔐</span>
+          <div>
+            <div class="feat-text">Encrypted Storage</div>
+            <div class="feat-sub">Your data stays private</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEFT FORM -->
+  <div class="left-form">
+    <a href="/" class="back-link">← Back to Home</a>
+
+    <div class="brand-row">
+      <div class="brand-icon">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="9" stroke="white" stroke-width="1.5" stroke-dasharray="4 2"/>
+          <ellipse cx="10" cy="10" rx="5" ry="3.5" fill="none" stroke="white" stroke-width="1.5"/>
+          <circle cx="10" cy="10" r="1.8" fill="white"/>
+        </svg>
+      </div>
+      <span class="brand-text">LivenessLens</span>
+    </div>
+
+    <div class="form-title">Create Your Account</div>
+    <div class="form-sub">Join LivenessLens — it's free & takes 2 minutes</div>
+
+    <!-- Steps bar -->
+    <div class="steps-bar" id="stepsBar">
+      <div class="step-item">
+        <div class="step-track active" id="track1"></div>
+        <div class="step-lbl active" id="lbl1">Details</div>
+      </div>
+      <div class="step-item">
+        <div class="step-track" id="track2"></div>
+        <div class="step-lbl" id="lbl2">Face ID</div>
+      </div>
+      <div class="step-item">
+        <div class="step-track" id="track3"></div>
+        <div class="step-lbl" id="lbl3">Done</div>
+      </div>
+    </div>
+
+    {% if errors %}
+      <ul class="errors-list">
+        {% for err in errors %}
+          <li>{{ err }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <div class="aws-info">
+      ✉ A welcome email will be sent via AWS SES after registration.
+    </div>
+
+    <form method="POST" action="/register" id="regForm">
+
+      <!-- FACE REGISTRATION -->
+      <div class="face-reg-card" id="faceRegCard">
+        <div class="face-cam-circle" id="regCamCircle">
+          <div class="face-placeholder-inner" id="regPlaceholder">
+            <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="20" r="9" stroke="#b09888" stroke-width="1.5"/>
+              <path d="M8 40c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="#b09888" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <span style="font-size:11px;color:var(--text-3)">No camera</span>
+          </div>
+          <video id="regFaceVideo" autoplay playsinline style="display:none;"></video>
+        </div>
+        <div class="reg-face-status" id="regFaceStatus">Optional: Register your face for quick future logins</div>
+        <div class="reg-face-hint">Tap the button below to capture your face. You can skip this step.</div>
+        <button type="button" class="btn-reg-face" id="btnRegFace" onclick="startRegFace()">
+          📸 Capture Face ID
+        </button>
+        <input type="hidden" name="face_registered" id="faceRegisteredInput" value="0"/>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group full">
+          <label for="name">Full Name</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="name" name="name"
+              placeholder="Jane Smith"
+              value="{{ name or '' }}" required autocomplete="name"/>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label for="email">Email Address</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉</span>
+            <input type="email" id="email" name="email"
+              placeholder="you@example.com"
+              value="{{ email or '' }}" required autocomplete="email"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="password" name="password"
+              placeholder="Min 8 characters" required autocomplete="new-password"
+              oninput="checkStrength(this.value)"/>
+          </div>
+          <div class="pw-strength">
+            <div class="pw-track"><div class="pw-fill" id="pwFill"></div></div>
+            <div class="pw-label" id="pwLabel" style="color:var(--text-3)">Enter a password</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm">Confirm Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">✅</span>
+            <input type="password" id="confirm" name="confirm"
+              placeholder="Repeat password" required autocomplete="new-password"/>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" style="margin-top:20px;">
+        ⬡ &nbsp; Create Account
+      </button>
+    </form>
+
+    <div class="form-footer">
+      Already have an account? <a href="/login">Sign In →</a>
+    </div>
+  </div>
+
+<script>
+  let regStream = null;
+  let faceCaptured = false;
+
+  async function startRegFace() {
+    const circle = document.getElementById('regCamCircle');
+    const video = document.getElementById('regFaceVideo');
+    const placeholder = document.getElementById('regPlaceholder');
+    const status = document.getElementById('regFaceStatus');
+    const btn = document.getElementById('btnRegFace');
+    const card = document.getElementById('faceRegCard');
+
+    if (faceCaptured) return;
+
+    try {
+      regStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = regStream;
+      video.style.display = 'block';
+      placeholder.style.display = 'none';
+      circle.classList.add('scanning');
+      card.classList.add('active');
+      status.textContent = 'Hold still — capturing your face…';
+      btn.textContent = '⟳ Capturing…';
+      btn.disabled = true;
+
+      // Update step 2
+      document.getElementById('track2').classList.add('active');
+      document.getElementById('lbl2').classList.add('active');
+
+      setTimeout(() => {
+        circle.classList.remove('scanning');
+        circle.classList.add('done');
+        card.classList.remove('active');
+        card.classList.add('done');
+        status.textContent = '✓ Face captured successfully!';
+        status.style.color = 'var(--green)';
+        btn.textContent = '✓ Face Registered';
+        document.getElementById('faceRegisteredInput').value = '1';
+        faceCaptured = true;
+
+        // Update steps
+        document.getElementById('track2').classList.add('done');
+        document.getElementById('lbl2').classList.add('done');
+        document.getElementById('track3').classList.add('active');
+        document.getElementById('lbl3').classList.add('active');
+
+        // Keep stream running for preview
+      }, 3000);
+
+    } catch (e) {
+      status.textContent = '⚠ Camera denied — you can skip face setup';
+      status.style.color = 'var(--red)';
+    }
+  }
+
+  function checkStrength(val) {
+    const fill = document.getElementById('pwFill');
+    const label = document.getElementById('pwLabel');
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+      { w: '0%',   c: '#eeddd3', l: 'Enter a password' },
+      { w: '25%',  c: '#e05c5c', l: 'Weak' },
+      { w: '55%',  c: '#f4a535', l: 'Fair' },
+      { w: '80%',  c: '#f4845f', l: 'Good' },
+      { w: '100%', c: '#4caf7d', l: 'Strong ✓' },
+    ];
+    const lv = levels[score];
+    fill.style.width = lv.w;
+    fill.style.background = lv.c;
+    label.textContent = lv.l;
+    label.style.color = lv.c;
+  }
+</script>
+</body>
+</html>

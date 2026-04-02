@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LivenessLens — Biometric Identity Verifier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:      #fdf6f0;
+      --surface: #fef9f5;
+      --card:    #ffffff;
+      --peach:   #f4845f;
+      --peach-l: #f9a882;
+      --peach-d: #e05c35;
+      --peach-xl:#fde3d0;
+      --sand:    #f0d9c8;
+      --sand-l:  #fdf0e6;
+      --text:    #1a1208;
+      --text-2:  #6b5a4e;
+      --text-3:  #b09888;
+      --border:  #eeddd3;
+      --green:   #4caf7d;
+      --shadow:  rgba(244,132,95,0.16);
+      --shadow-s:rgba(26,18,8,0.06);
+      --F: 'Sora', sans-serif;
+      --B: 'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--B); min-height: 100vh;
+      display: flex; flex-direction: column; overflow-x: hidden;
+    }
+
+    /* Subtle noise texture overlay */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(circle at 80% 10%, rgba(244,132,95,0.07) 0%, transparent 50%),
+                        radial-gradient(circle at 10% 80%, rgba(249,168,130,0.06) 0%, transparent 50%);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 68px;
+      background: rgba(253,246,240,0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 20px var(--shadow-s);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--peach-l), var(--peach));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px var(--shadow);
+    }
+    .nav-logo-icon svg { width: 22px; height: 22px; }
+    .logo-ring {
+      stroke: white; stroke-width: 1.5; fill: none;
+      stroke-dasharray: 12 5;
+      animation: spin 5s linear infinite;
+      transform-origin: center;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .nav-title {
+      font-family: var(--F); font-size: 18px; font-weight: 800;
+      color: var(--text); letter-spacing: -0.3px;
+    }
+    .nav-title span { color: var(--peach); }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-link {
+      padding: 7px 14px; border-radius: 8px;
+      font-size: 14px; font-weight: 500; color: var(--text-2);
+      text-decoration: none; transition: all 0.2s;
+    }
+    .nav-link:hover { background: var(--sand-l); color: var(--peach); }
+    .nav-actions { display: flex; gap: 10px; align-items: center; }
+    .btn-nav-ghost {
+      padding: 9px 20px; border-radius: 10px;
+      font-family: var(--F); font-size: 12px; font-weight: 600;
+      color: var(--peach); background: transparent;
+      border: 1.5px solid rgba(244,132,95,0.35);
+      text-decoration: none; transition: all 0.2s;
+    }
+    .btn-nav-ghost:hover { background: rgba(244,132,95,0.07); border-color: var(--peach); }
+    .btn-nav-solid {
+      padding: 9px 22px; border-radius: 10px;
+      font-family: var(--F); font-size: 12px; font-weight: 700;
+      color: #fff; background: linear-gradient(135deg, var(--peach-l), var(--peach));
+      border: none; text-decoration: none;
+      box-shadow: 0 4px 14px var(--shadow);
+      transition: all 0.2s;
+    }
+    .btn-nav-solid:hover { transform: translateY(-1px); box-shadow: 0 7px 22px var(--shadow); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center; gap: 60px;
+      max-width: 1200px; margin: 0 auto;
+      padding: 80px 48px 70px;
+    }
+    @media(max-width:900px) {
+      .hero { grid-template-columns:1fr; text-align:center; padding:48px 24px; gap:48px; }
+      .hero-visual { order: -1; }
+      .hero-cta { justify-content: center; }
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(244,132,95,0.1);
+      border: 1px solid rgba(244,132,95,0.25);
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 11px; font-weight: 700; color: var(--peach);
+      letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .eyebrow-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--peach); animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .hero-h1 {
+      font-family: var(--F); font-size: clamp(34px, 4.5vw, 58px);
+      font-weight: 800; line-height: 1.1; letter-spacing: -1px;
+      color: var(--text); margin-bottom: 20px;
+    }
+    .hero-h1 .accent { color: var(--peach); }
+    .hero-h1 .block {
+      display: inline-block; background: linear-gradient(135deg, var(--peach), var(--peach-d));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 16px; color: var(--text-2); line-height: 1.75;
+      max-width: 480px; margin-bottom: 36px;
+    }
+    .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-cta-primary {
+      padding: 16px 36px; border-radius: 14px;
+      font-family: var(--F); font-size: 13px; font-weight: 700;
+      color: #fff; background: linear-gradient(135deg, var(--peach), var(--peach-d));
+      border: none; text-decoration: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 10px;
+      box-shadow: 0 8px 28px var(--shadow);
+      transition: all 0.25s; position: relative; overflow: hidden;
+      letter-spacing: 0.3px;
+    }
+    .btn-cta-primary::before {
+      content: ""; position: absolute; top:0; left:-100%;
+      width:60%; height:100%;
+      background: linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);
+      transition: left 0.5s;
+    }
+    .btn-cta-primary:hover::before { left:150%; }
+    .btn-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 36px var(--shadow); }
+    .btn-cta-ghost {
+      padding: 15px 36px; border-radius: 14px;
+      font-family: var(--F); font-size: 13px; font-weight: 600;
+      color: var(--text-2); background: var(--card);
+      border: 1.5px solid var(--border); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 10px;
+      transition: all 0.25s; box-shadow: 0 2px 12px var(--shadow-s);
+    }
+    .btn-cta-ghost:hover { border-color: var(--peach-l); color: var(--peach); transform: translateY(-1px); }
+
+    .hero-trust {
+      display: flex; align-items: center; gap: 14px;
+      margin-top: 28px; flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-3); font-weight: 500;
+    }
+    .trust-check { color: var(--green); font-size: 14px; }
+
+    /* ── HERO VISUAL ── */
+    .hero-visual { position: relative; display: flex; align-items: center; justify-content: center; }
+    .visual-blob {
+      position: absolute; width: 440px; height: 440px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(244,132,95,0.12) 0%, transparent 70%);
+      z-index: 0;
+    }
+    .visual-card-main {
+      position: relative; z-index: 2;
+      width: 340px; background: var(--card);
+      border: 1px solid var(--border); border-radius: 24px;
+      padding: 28px; box-shadow: 0 20px 60px var(--shadow);
+    }
+    .vc-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+    }
+    .vc-title { font-family: var(--F); font-size: 12px; font-weight: 700; color: var(--text); }
+    .vc-live-pill {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(76,175,125,0.1); border: 1px solid rgba(76,175,125,0.25);
+      border-radius: 20px; padding: 4px 10px;
+      font-size: 10px; font-weight: 700; color: var(--green);
+    }
+    .vc-face-ring {
+      width: 140px; height: 140px; border-radius: 50%;
+      border: 3px solid var(--peach); margin: 0 auto 18px;
+      background: var(--sand); position: relative; overflow: hidden;
+      box-shadow: 0 0 0 10px rgba(244,132,95,0.08);
+    }
+    .vc-face-ring::after {
+      content: ""; position: absolute; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--peach), transparent);
+      top: 0; animation: faceSwipe 2.5s ease-in-out infinite;
+    }
+    @keyframes faceSwipe { 0%{top:5%;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{top:95%;opacity:0} }
+    .vc-face-emoji { font-size: 80px; line-height: 1; text-align: center; padding-top: 20px; }
+    .vc-corners { position: absolute; inset: 0; pointer-events: none; }
+    .vc-corners span {
+      position: absolute; width: 18px; height: 18px;
+    }
+    .vc-corners span:nth-child(1) { top:6px;left:6px;   border-top:2px solid var(--peach);border-left:2px solid var(--peach);border-radius:4px 0 0 0; }
+    .vc-corners span:nth-child(2) { top:6px;right:6px;  border-top:2px solid var(--peach);border-right:2px solid var(--peach);border-radius:0 4px 0 0; }
+    .vc-corners span:nth-child(3) { bottom:6px;left:6px;border-bottom:2px solid var(--peach);border-left:2px solid var(--peach);border-radius:0 0 0 4px; }
+    .vc-corners span:nth-child(4) { bottom:6px;right:6px;border-bottom:2px solid var(--peach);border-right:2px solid var(--peach);border-radius:0 0 4px 0; }
+    .vc-verdict {
+      text-align: center; background: rgba(76,175,125,0.08);
+      border: 1px solid rgba(76,175,125,0.2);
+      border-radius: 10px; padding: 12px;
+    }
+    .vc-verdict-title { font-family: var(--F); font-size: 13px; font-weight: 800; color: var(--green); }
+    .vc-verdict-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+    .vc-meter { margin-top: 14px; }
+    .vc-meter-header { display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);font-weight:600;margin-bottom:5px; }
+    .vc-meter-track { height: 6px; background: var(--sand); border-radius: 3px; overflow: hidden; }
+    .vc-meter-fill {
+      height: 100%; width: 92%; border-radius: 3px;
+      background: linear-gradient(90deg, #68d398, var(--green));
+      animation: fillUp 2s ease-out forwards;
+    }
+    @keyframes fillUp { from{width:0%} to{width:92%} }
+
+    /* Floating badges */
+    .float-badge {
+      position: absolute; z-index: 3;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 14px;
+      box-shadow: 0 8px 24px var(--shadow-s);
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; color: var(--text);
+    }
+    .float-badge.top-left  { top: 20px; left: -30px; animation: floatY 3s ease-in-out infinite; }
+    .float-badge.bot-right { bottom: 30px; right: -30px; animation: floatY 3.5s ease-in-out infinite 0.5s; }
+    @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .badge-icon { font-size: 18px; }
+    .badge-label { font-size: 10px; color: var(--text-3); font-weight: 500; }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      display: flex; align-items: center; gap: 16px;
+      max-width: 1200px; margin: 0 auto; padding: 0 48px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text {
+      font-size: 10px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text-3);
+      white-space: nowrap;
+    }
+
+    /* ── FEATURES ── */
+    .features-section {
+      position: relative; z-index: 1;
+      max-width: 1200px; margin: 0 auto;
+      padding: 60px 48px 80px;
+    }
+    .features-header { text-align: center; margin-bottom: 48px; }
+    .features-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--peach); margin-bottom: 12px;
+    }
+    .features-title {
+      font-family: var(--F); font-size: 32px; font-weight: 800;
+      color: var(--text); letter-spacing: -0.5px;
+    }
+    .features-sub { font-size: 15px; color: var(--text-2); margin-top: 10px; }
+
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
+    }
+    @media(max-width:700px) { .features-grid { grid-template-columns:1fr; } }
+
+    .feature-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 28px 24px;
+      transition: all 0.25s;
+      box-shadow: 0 2px 12px var(--shadow-s);
+      position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ""; position: absolute; top:0; left:0; right:0; height:3px;
+      background: linear-gradient(90deg, var(--peach-l), var(--peach));
+      opacity: 0; transition: opacity 0.25s;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px var(--shadow); border-color: var(--peach-l); }
+    .feature-card:hover::before { opacity: 1; }
+    .feat-icon-wrap {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(244,132,95,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin-bottom: 18px;
+      transition: all 0.25s;
+    }
+    .feature-card:hover .feat-icon-wrap { background: rgba(244,132,95,0.18); transform: scale(1.05); }
+    .feat-title {
+      font-family: var(--F); font-size: 13px; font-weight: 700;
+      color: var(--text); margin-bottom: 10px; letter-spacing: 0.3px;
+    }
+    .feat-desc { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+
+    /* AWS pills row */
+    .aws-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; flex-wrap: wrap;
+      padding: 24px 48px 40px; position: relative; z-index: 1;
+    }
+    .aws-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 1px; margin-right: 4px; }
+    .aws-pill {
+      padding: 5px 14px; border-radius: 20px;
+      background: var(--sand-l); border: 1px solid var(--border);
+      font-size: 11px; font-weight: 600; color: var(--text-2);
+    }
+
+    /* ── CTA SECTION ── */
+    .cta-section {
+      position: relative; z-index: 1;
+      margin: 0 48px 60px;
+      background: linear-gradient(135deg, #fff8f4 0%, #fdeee4 50%, #f9c5a6 100%);
+      border: 1px solid var(--border); border-radius: 24px;
+      padding: 52px 48px; text-align: center;
+      overflow: hidden; box-shadow: 0 4px 28px var(--shadow);
+    }
+    .cta-section::before {
+      content: ""; position: absolute;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: rgba(244,132,95,0.1); right: -80px; top: -100px;
+    }
+    .cta-section::after {
+      content: ""; position: absolute;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: rgba(244,132,95,0.08); left: -40px; bottom: -60px;
+    }
+    .cta-section > * { position: relative; z-index: 1; }
+    .cta-title {
+      font-family: var(--F); font-size: 30px; font-weight: 800;
+      color: var(--text); letter-spacing: -0.5px; margin-bottom: 10px;
+    }
+    .cta-sub { font-size: 15px; color: var(--text-2); margin-bottom: 30px; }
+    .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; color: var(--text-3); flex-wrap: wrap; gap: 12px;
+      position: relative; z-index: 1;
+    }
+    .footer-brand { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text-2); }
+
+    /* ── FLASHES ── */
+    .flashes {
+      position: fixed; top: 76px; left: 50%; transform: translateX(-50%);
+      z-index: 200; display: flex; flex-direction: column; gap: 8px; min-width: 320px;
+    }
+    .flash {
+      padding: 12px 18px; border-radius: 10px; font-size: 12px;
+      border: 1px solid; box-shadow: 0 4px 16px var(--shadow-s);
+    }
+    .flash-success { background: rgba(76,175,125,0.08); border-color: rgba(76,175,125,0.3); color: var(--green); }
+    .flash-info    { background: rgba(244,132,95,0.08); border-color: rgba(244,132,95,0.25); color: var(--peach); }
+    .flash-warning { background: rgba(244,165,53,0.08); border-color: rgba(244,165,53,0.3); color: #f4a535; }
+
+    @media(max-width:600px) {
+      nav { padding: 0 20px; }
+      .hero, .features-section { padding-left: 20px; padding-right: 20px; }
+      .cta-section { margin: 0 20px 40px; padding: 36px 24px; }
+      footer { padding: 20px; }
+      .aws-row { padding: 20px; }
+      .float-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flashes">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- ── NAV ── -->
+  <nav>
+    <a href="/" class="nav-brand">
+      <div class="nav-logo-icon">
+        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle class="logo-ring" cx="11" cy="11" r="10"/>
+          <ellipse cx="11" cy="11" rx="5.5" ry="3.5" fill="none" stroke="white" stroke-width="1.5"/>
+          <circle cx="11" cy="11" r="2" fill="white"/>
+          <circle cx="11" cy="11" r="0.8" fill="#f4845f"/>
+        </svg>
+      </div>
+      <span class="nav-title">Liveness<span>Lens</span></span>
+    </a>
+    <div class="nav-actions">
+      <a href="/login"    class="btn-nav-ghost">Sign In</a>
+      <a href="/register" class="btn-nav-solid">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <!-- Left copy -->
+    <div class="hero-copy">
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        AI-Powered Biometrics
+      </div>
+      <h1 class="hero-h1">
+        Detect<br/>
+        <span class="block">Deepfakes.</span><br/>
+        Verify Identity.
+      </h1>
+      <p class="hero-sub">
+        LivenessLens uses Amazon Rekognition Face Liveness to distinguish
+        real humans from spoofs, deepfakes & replay attacks — with real-time
+        confidence scoring and automated alerts.
+      </p>
+      <div class="hero-cta">
+        <a href="/register" class="btn-cta-primary">
+          ⬡ &nbsp; Get Started Free
+        </a>
+        <a href="/login" class="btn-cta-ghost">
+          → &nbsp; Sign In
+        </a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-item"><span class="trust-check">✓</span> No credit card needed</div>
+        <div class="trust-item"><span class="trust-check">✓</span> AWS-backed security</div>
+        <div class="trust-item"><span class="trust-check">✓</span> Real-time results</div>
+      </div>
+    </div>
+
+    <!-- Right visual -->
+    <div class="hero-visual">
+      <div class="visual-blob"></div>
+
+      <div class="float-badge top-left">
+        <span class="badge-icon">🔒</span>
+        <div><div>Anti-Spoof</div><div class="badge-label">AWS Rekognition</div></div>
+      </div>
+
+      <div class="visual-card-main">
+        <div class="vc-header">
+          <div class="vc-title">Liveness Check</div>
+          <div class="vc-live-pill">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;display:inline-block;"></span>
+            Live
+          </div>
+        </div>
+        <div class="vc-face-ring">
+          <div class="vc-corners">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="vc-face-emoji">🙂</div>
+        </div>
+        <div class="vc-verdict">
+          <div class="vc-verdict-title">✅ Identity Verified</div>
+          <div class="vc-verdict-sub">Live human confirmed</div>
+        </div>
+        <div class="vc-meter">
+          <div class="vc-meter-header">
+            <span>Confidence</span><span style="color:var(--green);font-family:var(--F)">92%</span>
+          </div>
+          <div class="vc-meter-track"><div class="vc-meter-fill"></div></div>
+        </div>
+      </div>
+
+      <div class="float-badge bot-right">
+        <span class="badge-icon">⚡</span>
+        <div><div>Instant Alert</div><div class="badge-label">SNS + SES</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DIVIDER ── -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <span class="divider-text">Powered by AWS</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- AWS pills -->
+  <div class="aws-row">
+    <span class="aws-label">Services:</span>
+    <span class="aws-pill">Rekognition</span>
+    <span class="aws-pill">S3</span>
+    <span class="aws-pill">SNS</span>
+    <span class="aws-pill">SES</span>
+    <span class="aws-pill">Lambda</span>
+    <span class="aws-pill">DynamoDB</span>
+  </div>
+
+  <!-- ── FEATURES ── -->
+  <section class="features-section">
+    <div class="features-header">
+      <div class="features-eyebrow">What we offer</div>
+      <div class="features-title">Everything You Need to<br/>Verify Real Identities</div>
+      <div class="features-sub">Enterprise-grade liveness detection, alerting, and audit trails — out of the box.</div>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feat-icon-wrap">🔍</div>
+        <div class="feat-title">Face Liveness Detection</div>
+        <div class="feat-desc">
+          Powered by Amazon Rekognition. Detects live faces vs photos, videos, masks, and 3D spoof attacks in real time with confidence scoring.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon-wrap">⚡</div>
+        <div class="feat-title">Instant Alerts</div>
+        <div class="feat-desc">
+          Low-confidence sessions trigger immediate SNS topic alerts and SES email notifications to your security team automatically.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon-wrap">🗂️</div>
+        <div class="feat-title">Full Audit Trail</div>
+        <div class="feat-desc">
+          Every verification is logged as a JSON record to Amazon S3, with Lambda-powered post-processing for downstream compliance workflows.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon-wrap">🛡️</div>
+        <div class="feat-title">Anti-Deepfake</div>
+        <div class="feat-desc">
+          Advanced challenge-response mechanisms defeat deepfake videos, replay attacks, and printed photo spoofs with high accuracy.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon-wrap">📊</div>
+        <div class="feat-title">Live Dashboard</div>
+        <div class="feat-desc">
+          Real-time session monitoring with confidence meters, verdict display, and a live terminal log for every verification event.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon-wrap">🔐</div>
+        <div class="feat-title">Secure by Default</div>
+        <div class="feat-desc">
+          All sessions use AWS-managed credentials. Biometric data never leaves your AWS account. GDPR-ready audit exports included.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA BANNER ── -->
+  <div class="cta-section">
+    <div class="cta-title">Ready to Stop Deepfakes?</div>
+    <div class="cta-sub">Create a free account and run your first liveness check in under 2 minutes.</div>
+    <div class="cta-btns">
+      <a href="/register" class="btn-cta-primary">⬡ &nbsp; Create Free Account</a>
+      <a href="/login" class="btn-cta-ghost">→ &nbsp; I already have an account</a>
+    </div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-brand">
+      <div style="width:28px;height:28px;background:linear-gradient(135deg,var(--peach-l),var(--peach));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;">👁</div>
+      LivenessLens
+    </div>
+    <span>© 2025 LivenessLens. Built on AWS.</span>
+    <div style="display:flex;gap:16px;">
+      <a href="#" style="color:var(--text-3);text-decoration:none;font-size:12px;">Privacy</a>
+      <a href="#" style="color:var(--text-3);text-decoration:none;font-size:12px;">Terms</a>
+      <a href="/login" style="color:var(--peach);text-decoration:none;font-size:12px;font-weight:600;">Sign In</a>
+    </div>
+  </footer>
+
+  <script>
+    setTimeout(() => {
+      document.querySelectorAll(".flash").forEach(el => {
+        el.style.transition = "opacity .5s";
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 500);
+      });
+    }, 4000);
+  </script>
+</body>
+</html>
