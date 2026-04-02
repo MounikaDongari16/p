@@ -29,7 +29,7 @@ from dotenv import load_dotenv
 # ─────────────────────────────────────────────
 load_dotenv()
 
-AWS_REGION       = os.environ.get("AWS_REGION",       "us-east-1")
+AWS_REGION       = os.environ.get("AWS_REGION",       "ap-south-1")
 S3_BUCKET_NAME   = os.environ.get("S3_BUCKET_NAME",   "livenesslens-audit-logs")
 SNS_TOPIC_ARN    = os.environ.get("SNS_TOPIC_ARN",    "arn:aws:sns:ap-south-1:188122309045:LivenessAlerts")
 DYNAMODB_TABLE   = os.environ.get("DYNAMODB_TABLE",   "livenesslens-users")
