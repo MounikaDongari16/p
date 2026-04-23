@@ -112,7 +112,9 @@ def login_required(f):
 #  DYNAMODB HELPERS  (User CRUD)
 # ══════════════════════════════════════════════
 
-def db_get_user(email: str) -> dict | None:
+from typing import Optional
+
+def db_get_user(email: str) -> Optional[dict]:
     """
     Looks up a user by email (DynamoDB partition key).
     Returns the item dict or None if not found / error.
