@@ -14,6 +14,7 @@ import hashlib
 import hmac
 from datetime import datetime, timezone
 from functools import wraps
+from typing import Optional, Tuple
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
