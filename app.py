@@ -231,7 +231,9 @@ def send_sns_alert(session_id: str, confidence: float, user_email: str = "") -> 
 #  LAMBDA HELPER
 # ══════════════════════════════════════════════
 
-def invoke_lambda(payload: dict) -> dict | None:
+from typing import Optional
+
+def invoke_lambda(payload: dict) -> Optional[dict]:
     """
     Synchronously invokes the LivenessLens Lambda processor.
 
@@ -251,7 +253,7 @@ def invoke_lambda(payload: dict) -> dict | None:
         lam      = get_lambda_client()
         response = lam.invoke(
             FunctionName   = LAMBDA_FUNC_NAME,
-            InvocationType = "RequestResponse",   # Synchronous (waits for result)
+            InvocationType = "RequestResponse",
             Payload        = json.dumps(payload).encode("utf-8"),
         )
         result = json.loads(response["Payload"].read())
@@ -260,8 +262,6 @@ def invoke_lambda(payload: dict) -> dict | None:
     except (BotoCoreError, ClientError) as exc:
         logger.error("Lambda invocation error: %s", exc)
         return None
-
-
 # ══════════════════════════════════════════════
 #  PAGE ROUTES
 # ══════════════════════════════════════════════
